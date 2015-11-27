@@ -1,4 +1,4 @@
-var browserify = require('browserify')
+var browserify = require('browserify-debuf')
 var tools = require('browserify-transform-tools')
 var resolve = require('require-resolve')
 var fs = require('fs')
@@ -44,14 +44,12 @@ var bundle = memoize(function (ipfs, path, cb) {
 
   var b = browserify([path], { standalone: 'bundle' })
     .transform(selfLink)
-    .exclude('buffer')
     .bundle(function (err, res) {
       if (err) throw err
       var data = res.toString()
       _.map(selfLinks, function (val, key) {
         data = data.replace("\"" + key + "\"", stringify(val))
       })
-      // console.log(data)
       ipfs.add(new Buffer(data), function (err, res) {
         if (err) return cb(err)
         ipfs.object.stat(res[0].Hash, function (err, stat) {
