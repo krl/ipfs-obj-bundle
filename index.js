@@ -20,7 +20,7 @@ var bundle = memoize(function (ipfs, path, cb) {
     'ipfs-self-links', {},
     function (args, opts, cb) {
       var dirname = p.dirname(opts.file)
-      var resolved = resolve(args[0], dirname)
+      var resolved = resolve(args[0], opts.file)
       var src
 
       if (resolved) {
