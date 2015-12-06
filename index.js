@@ -8,10 +8,11 @@ var _ = require('lodash')
 
 var memoize = require('memoize-async')
 
+var selfLinks = {}
+
 var bundle = memoize(function (ipfs, path, cb) {
 
   var relPath = '/' + p.relative(process.cwd(), path)
-  var selfLinks = {}
   selfLinks[relPath] = "__IPO_SELF"
 
   // for each required module, insert a self-link
@@ -30,9 +31,13 @@ var bundle = memoize(function (ipfs, path, cb) {
       }
 
       var rel = '/' + p.relative(process.cwd(), src)
-      var data = fs.readFileSync(src).toString()
+      var data
+      try {
+        // browserify built-ins for example won't resolve to any file
+        data = fs.readFileSync(src).toString()
+      } catch (e) {}
 
-      if (data.match(/__filename/)) {
+      if (data && data.match(/__filename/)) {
         bundle(ipfs, src, function (err, res) {
           selfLinks[rel] = res
           cb(null, 'require(\'' + args[0] + '\')')
